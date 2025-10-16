@@ -1,57 +1,19 @@
 pipeline {
-  agent any
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    agent any
+
+    options {
+        // Set a build timeout
+        timeout(time: 20, unit: 'MINUTES')
     }
-    stage('Install deps') {
-      steps {
-        powershell '''
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
-        '''
-      }
-    }
-    stage('Start API') {
-      steps {
-        powershell '''
-        $p = Start-Process -FilePath python -ArgumentList 'app.py' -PassThru
-        $p.Id | Out-File -FilePath api.pid -Encoding ascii
-        Start-Sleep -Seconds 2
-        '''
-      }
-    }
-    stage('Run Tests') {
-      steps {
-        powershell 'python -m pytest -q'
-      }
-    }
-  }
-  post {
-    always {
-      powershell '''
-      if (Test-Path api.pid) {
-        $id = Get-Content api.pid | Out-String
-        $id = $id.Trim()
-        Stop-Process -Id $id -ErrorAction SilentlyContinue
-        Remove-Item api.pid -ErrorAction SilentlyContinue
-      }
-      '''
-    }
-  }
-}
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Install deps') {
+        stage('Install dependencies') {
             steps {
                 powershell '''
                 python -m pip install --upgrade pip
@@ -63,11 +25,10 @@ pipeline {
         stage('Start API') {
             steps {
                 powershell '''
-                # Start the API in background and write its PID to api.pid
-                $p = Start-Process -FilePath "python" -ArgumentList "app.py" -PassThru
-                $p.Id | Out-File -FilePath "api.pid" -Encoding ascii
-                Start-Sleep -Seconds 2
-                Get-Content api.pid
+                # Start the API in background and write PID to file
+                $p = Start-Process -FilePath python -ArgumentList 'app.py' -PassThru
+                $p.Id | Out-File -FilePath api.pid -Encoding ascii
+                Start-Sleep -Seconds 3
                 '''
             }
         }
@@ -85,18 +46,19 @@ pipeline {
     post {
         always {
             powershell '''
-            if (Test-Path "api.pid") {
-                $id = Get-Content "api.pid" | Out-String
+            # Stop the background API process if it exists
+            if (Test-Path api.pid) {
+                $id = Get-Content api.pid | Out-String
                 $id = $id.Trim()
-                if ($id -match "\\d+") {
+                if ($id -match '\\d+') {
                     try {
                         Stop-Process -Id $id -ErrorAction SilentlyContinue
-                        Write-Host "Stopped API process with ID $id"
+                        Write-Host "Stopped API process $id"
                     } catch {
                         Write-Host "Failed to stop process $id"
                     }
                 }
-                Remove-Item "api.pid" -ErrorAction SilentlyContinue
+                Remove-Item api.pid -ErrorAction SilentlyContinue
             }
             '''
         }
