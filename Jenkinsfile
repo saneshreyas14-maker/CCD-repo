@@ -16,8 +16,8 @@ pipeline {
         stage('Install dependencies') {
             steps {
                 powershell '''
-                python -m pip install --upgrade pip
-                python -m pip install -r requirements.txt
+                "C:\\Users\\ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install --upgrade pip
+                "C:\\Users\\ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install -r requirements.txt
                 '''
             }
         }
@@ -26,7 +26,7 @@ pipeline {
             steps {
                 powershell '''
                 # Start the API in background and write PID to file
-                $p = Start-Process -FilePath python -ArgumentList 'app.py' -PassThru
+                $p = Start-Process -FilePath "C:\\Users\\ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -ArgumentList 'app.py' -PassThru
                 $p.Id | Out-File -FilePath api.pid -Encoding ascii
                 Start-Sleep -Seconds 3
                 '''
@@ -36,7 +36,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 powershell '''
-                python -m pytest -q
+                "C:\\Users\\ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pytest -q
                 exit $LASTEXITCODE
                 '''
             }
