@@ -13,14 +13,7 @@ pipeline {
             }
         }
 
-        stage('Install dependencies') {
-            steps {
-                powershell '''
-                "C:\\Users\\ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install --upgrade pip
-                "C:\\Users\\ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install -r requirements.txt
-                '''
-            }
-        }
+
 
         stage('Start API') {
             steps {
