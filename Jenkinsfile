@@ -5,6 +5,50 @@ pipeline {
         // Limit total runtime of the build
         timeout(time: 20, unit: 'MINUTES')
     }
+pipeline {
+  agent any
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+    stage('Install deps') {
+      steps {
+        powershell '''
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+        '''
+      }
+    }
+    stage('Start API') {
+      steps {
+        powershell '''
+        $p = Start-Process -FilePath python -ArgumentList 'app.py' -PassThru
+        $p.Id | Out-File -FilePath api.pid -Encoding ascii
+        Start-Sleep -Seconds 2
+        '''
+      }
+    }
+    stage('Run Tests') {
+      steps {
+        powershell 'python -m pytest -q'
+      }
+    }
+  }
+  post {
+    always {
+      powershell '''
+      if (Test-Path api.pid) {
+        $id = Get-Content api.pid | Out-String
+        $id = $id.Trim()
+        Stop-Process -Id $id -ErrorAction SilentlyContinue
+        Remove-Item api.pid -ErrorAction SilentlyContinue
+      }
+      '''
+    }
+  }
+}
 
     stages {
 
