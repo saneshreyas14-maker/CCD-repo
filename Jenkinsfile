@@ -28,24 +28,24 @@ pipeline {
 
     }
 
-    post {
-        always {
-            powershell '''
-            # Stop the background API process if it exists
-            if (Test-Path api.pid) {
-                $id = Get-Content api.pid | Out-String
-                $id = $id.Trim()
-                if ($id -match '\\d+') {
-                    try {
-                        Stop-Process -Id $id -ErrorAction SilentlyContinue
-                        Write-Host "Stopped API process $id"
-                    } catch {
-                        Write-Host "Failed to stop process $id"
-                    }
-                }
-                Remove-Item api.pid -ErrorAction SilentlyContinue
-            }
-            '''
-        }
-    }
+    // post {
+    //     always {
+    //         powershell '''
+    //         # Stop the background API process if it exists
+    //         if (Test-Path api.pid) {
+    //             $id = Get-Content api.pid | Out-String
+    //             $id = $id.Trim()
+    //             if ($id -match '\\d+') {
+    //                 try {
+    //                     Stop-Process -Id $id -ErrorAction SilentlyContinue
+    //                     Write-Host "Stopped API process $id"
+    //                 } catch {
+    //                     Write-Host "Failed to stop process $id"
+    //                 }
+    //             }
+    //             Remove-Item api.pid -ErrorAction SilentlyContinue
+    //         }
+    //         '''
+    //     }
+    // }
 }
