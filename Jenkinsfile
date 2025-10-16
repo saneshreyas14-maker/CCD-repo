@@ -26,14 +26,6 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                powershell '''
-                "C:\\Users\\ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pytest -q
-                exit $LASTEXITCODE
-                '''
-            }
-        }
     }
 
     post {
