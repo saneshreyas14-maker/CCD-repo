@@ -1,11 +1,4 @@
 pipeline {
-    agent { label 'windows' }
-
-    options {
-        // Limit total runtime of the build
-        timeout(time: 20, unit: 'MINUTES')
-    }
-pipeline {
   agent any
   stages {
     stage('Checkout') {
